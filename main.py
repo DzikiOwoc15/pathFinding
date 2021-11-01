@@ -10,7 +10,7 @@ columns = 10
 
 def button_click(x_axis, y_axis):
     print(x_axis, y_axis)
-    buttons_grid[x_axis][y_axis].config(background="blue")
+    buttons_grid[x_axis - 1][y_axis - 1].config(background="blue")
 
 
 # Draw the board (Including the row and column labels)
@@ -31,5 +31,6 @@ for x in range(rows + 1):
             button = tkinter.Button(window, fg="white", height=3, width=5, command=lambda z=x, w=y: button_click(z, w))
             button.grid(row=x, column=y)
             button_list.append(button)
-    buttons_grid.append(button_list)
+    if len(button_list) != 0:
+        buttons_grid.append(button_list)
 window.mainloop()

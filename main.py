@@ -10,7 +10,12 @@ columns = 10
 
 def button_click(x_axis, y_axis):
     print(x_axis, y_axis)
-    buttons_grid[x_axis - 1][y_axis - 1].config(background="blue")
+    current_button = buttons_grid[x_axis - 1][y_axis - 1]
+    color = current_button.cget("bg")
+    if color != "blue":
+        current_button.config(background="blue")
+    else:
+        current_button.config(background="white")
 
 
 # Draw the board (Including the row and column labels)

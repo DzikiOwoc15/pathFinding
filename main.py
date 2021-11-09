@@ -1,15 +1,17 @@
 import tkinter
 
 # Basic variables
-from tkinter import RIGHT, BOTH, X, TOP, BOTTOM
+from tkinter import RIGHT, BOTH, X, TOP, BOTTOM, CENTER, LEFT
 
 buttons_grid = []
 rows = 10
 columns = 10
 button_height = 3
 button_width = 5
+is_window_maximized = False
 
 # Define colors used
+title_bar_color = "#121212"
 background_color = "#1a1a1a"
 blue_color = "#2962ff"
 button_color = "#242424"
@@ -18,17 +20,60 @@ button_clicked_color = "#303030"
 # Init window
 window = tkinter.Tk()
 window.configure(bg=background_color)
-window.title("Path Finding GUI")
+
+# Make a custom title bar
+window.overrideredirect(True)
+window.geometry('700x650')
+
+
+def mouse_click(event):
+    x, y = event.x, event.y
+    print('{}, {}'.format(x, y))
+
+
+def move_window(event):
+    x = event.x
+    y = event.y
+    window.geometry('+{0}+{1}'.format(event.x_root, event.y_root))
+
+
+def maximize_window():
+    global is_window_maximized
+    if is_window_maximized:
+        window.geometry('700x850')
+        window.state('normal')
+        is_window_maximized = False
+    else:
+        window.state('zoomed')
+        is_window_maximized = True
+
+
+title_bar = tkinter.Frame(window, bg=title_bar_color, relief="raised")
+close_button = tkinter.Button(title_bar, text="X", command=window.destroy, bg=title_bar_color, fg="white",
+                              borderwidth=0, activebackground=button_clicked_color, pady=3, padx=3)
+maximize_button = tkinter.Button(title_bar, text="[  ]", command=maximize_window, bg=title_bar_color, fg="white",
+                                 borderwidth=0, activebackground=button_clicked_color, pady=3, padx=3)
+title_label = tkinter.Label(title_bar, bg=title_bar_color, text="PathFinding GUI", fg="white", borderwidth=0,
+                            pady=3, padx=10)
+
+title_bar.pack(side=TOP, expand=False, fill=X)
+close_button.pack(side=RIGHT)
+maximize_button.pack(side=RIGHT)
+title_label.pack(side=LEFT)
+title_bar.bind('<B1-Motion>', move_window)
+title_label.bind('<B1-Motion>', move_window)
+title_bar.bind('<Button-1>', mouse_click)
 
 frame_top = tkinter.Frame(window)
 frame_top.pack(side=TOP, fill=X)
 frame_top.config(bg=background_color)
 
 frame_bottom = tkinter.Frame(window)
-frame_bottom.pack(side=BOTTOM, fill=X)
+frame_bottom.pack(side=BOTTOM, fill=X, padx=100, pady=50)
 frame_bottom.config(bg=background_color)
 
 play_button = tkinter.Button(frame_top, bg="white", text="P", height=button_height, width=button_width).pack()
+
 
 # Function to change color when button is clicked
 def button_click(x_axis, y_axis):

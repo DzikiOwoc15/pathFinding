@@ -134,6 +134,7 @@ start_button.config(bg="green", text="Set start",
                     command=lambda self=start_button:
                     set_start_button_click(self),
                     activebackground="green")
+start_button.bind('<Button-1>', set_start_button_click(start_button))
 
 # Draw the board (Including the row and column labels)
 for x in range(rows + 1):

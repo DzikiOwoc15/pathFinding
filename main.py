@@ -1,15 +1,22 @@
 import tkinter
-from tkinter import RIGHT, BOTH, X, TOP, BOTTOM, CENTER, LEFT, Y
+from tkinter import RIGHT, X, TOP, BOTTOM, LEFT, RAISED, SUNKEN
 
 # Basic variables
+
+# buttons grid is a list containing all buttons for a future reference
 buttons_grid = []
+# state matrix is a list containing states of all buttons (clicked or not)
+# False meaning not pressed
 state_matrix = []
 rows = 10
 columns = 10
 button_height = 3
 button_width = 5
+start_x = None
+start_y = None
 is_window_maximized = False
-default_geometry='800x900'
+is_set_start_button_pressed = False
+default_geometry = '800x900'
 
 # Define colors used
 title_bar_color = "#121212"
@@ -55,14 +62,33 @@ def maximize_window():
         is_window_maximized = True
 
 
-# Function to change color when button is clicked
-def button_click(x_axis, y_axis):
-    current_button = buttons_grid[x_axis - 1][y_axis - 1]
-    color = current_button.cget("bg")
-    if color != blue_color:
-        current_button.config(background=blue_color)
+def set_start_button_click(self):
+    global is_set_start_button_pressed
+    if is_set_start_button_pressed:
+        print("button unclicked")
+        is_set_start_button_pressed = False
+        self.config(relief=RAISED)
     else:
-        current_button.config(background=button_color)
+        print("button clicked")
+        is_set_start_button_pressed = True
+        self.config(relief=SUNKEN)
+
+
+# Function to change color and state when button is clicked
+def button_click(x_axis, y_axis):
+    global is_set_start_button_pressed, start_x, start_y
+    current_button = buttons_grid[x_axis - 1][y_axis - 1]
+    if not is_set_start_button_pressed:
+        button_clicked = state_matrix[x_axis - 1][y_axis - 1]
+        if not button_clicked:
+            state_matrix[x_axis - 1][y_axis - 1] = True
+            current_button.config(background=blue_color)
+        else:
+            state_matrix[x_axis - 1][y_axis - 1] = False
+            current_button.config(background=button_color)
+    else:
+        # TODO COMPLETE SET START
+        current_button.config(background="green")
 
 
 # initialize items on a title bar
@@ -87,7 +113,7 @@ title_label.bind('<B1-Motion>', move_window)
 title_bar.bind('<Button-1>', mouse_click)
 logo_label.bind('<B1-Motion>', move_window)
 
-
+# TODO REMAKE TOP FRAME LAYOUT (MAKE IT PRETTIER)
 # Define top frame (play button etc)
 frame_top = tkinter.Frame(window)
 frame_top.pack(side=TOP, pady=25)
@@ -102,10 +128,17 @@ play_button_image = tkinter.PhotoImage(file="assets/baseline_play_circle_white_2
 play_button = tkinter.Button(frame_top, image=play_button_image, bg=background_color, highlightthickness=0, bd=0,
                              activebackground=background_color,
                              command=lambda grid=state_matrix: calc_path(grid)).pack()
+start_button = tkinter.Button(frame_top)
+start_button.pack()
+start_button.config(bg="green", text="Set start",
+                    command=lambda self=start_button:
+                    set_start_button_click(self),
+                    activebackground="green")
 
 # Draw the board (Including the row and column labels)
 for x in range(rows + 1):
     button_list = []
+    matrix_list = []
     for y in range(columns + 1):
         # Draw row and column labels
         if x == 0 or y == 0:
@@ -118,12 +151,14 @@ for x in range(rows + 1):
             tkinter.Label(frame_bottom, text=label_text, bg=background_color, fg="white").grid(row=x, column=y)
         # Draw buttons
         else:
+            matrix_list.append(False)
             button = tkinter.Button(frame_bottom, bg=button_color, activebackground=button_clicked_color,
                                     height=button_height, width=button_width,
                                     command=lambda z=x, w=y: button_click(z, w))
             button.grid(row=x, column=y)
             button_list.append(button)
     if len(button_list) != 0:
+        state_matrix.append(matrix_list)
         buttons_grid.append(button_list)
 
 window.mainloop()

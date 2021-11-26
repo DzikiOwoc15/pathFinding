@@ -1,5 +1,7 @@
+import time
 import tkinter
 from tkinter import RIGHT, X, TOP, BOTTOM, LEFT, RAISED, SUNKEN
+import pyautogui
 
 # Basic variables
 
@@ -10,13 +12,16 @@ buttons_grid = []
 state_matrix = []
 rows = 10
 columns = 10
-button_height = 3
+button_height = 2
 button_width = 5
 start_x = None
 start_y = None
 is_window_maximized = False
 is_set_start_button_pressed = False
-default_geometry = '800x900'
+is_set_finish_button_pressed = False
+default_geometry = '900x1000'
+window_previous_y = 0
+window_previous_x = 0
 
 # Define colors used
 title_bar_color = "#121212"
@@ -35,20 +40,24 @@ window.geometry(default_geometry)
 
 
 def calc_path(grid):
+    # TODO CREATE ALGORITHM THAT FINDS THE SHORTEST PATH
     foo = "foo"
     # do sth
     # do more
 
 
-def mouse_click(event):
-    x, y = event.x, event.y
-    print('{}, {}'.format(x, y))
-
-
 def move_window(event):
-    x = event.x
-    y = event.y
-    window.geometry('+{0}+{1}'.format(event.x_root, event.y_root))
+    start_x_pos = event.x_root
+    start_y_pos = event.y_root
+    time.sleep(0.0000000001)
+    current_window_x = window.winfo_x()
+    current_window_y = window.winfo_y()
+    position = pyautogui.position()
+    end_x = position[0]
+    end_y = position[1]
+    difference_x = end_x - start_x_pos
+    difference_y = end_y - start_y_pos
+    window.geometry('+{0}+{1}'.format(current_window_x + difference_x, current_window_y + difference_y))
 
 
 def maximize_window():
@@ -63,7 +72,7 @@ def maximize_window():
 
 
 def set_start_button_click(self):
-    global is_set_start_button_pressed
+    global is_set_start_button_pressed, is_set_finish_button_pressed
     if is_set_start_button_pressed:
         print("button unclicked")
         is_set_start_button_pressed = False
@@ -71,6 +80,17 @@ def set_start_button_click(self):
     else:
         print("button clicked")
         is_set_start_button_pressed = True
+        self.config(relief=SUNKEN)
+
+
+def set_finish_button(self):
+    global is_set_finish_button_pressed, is_set_start_button_pressed
+    if is_set_finish_button_pressed:
+        is_set_finish_button_pressed = False
+        self.config(relief=RAISED)
+    else:
+        # TODO ONLY ONE BUTTON CAN BE SUNKEN AT THE SAME TIME
+        is_set_finish_button_pressed = True
         self.config(relief=SUNKEN)
 
 
@@ -88,6 +108,8 @@ def button_click(x_axis, y_axis):
             current_button.config(background=button_color)
     else:
         # TODO COMPLETE SET START
+        start_x = x_axis - 1
+        start_y = y_axis - 1
         current_button.config(background="green")
 
 
@@ -110,7 +132,6 @@ maximize_button.pack(side=RIGHT)
 title_label.pack(side=LEFT)
 title_bar.bind('<B1-Motion>', move_window)
 title_label.bind('<B1-Motion>', move_window)
-title_bar.bind('<Button-1>', mouse_click)
 logo_label.bind('<B1-Motion>', move_window)
 
 # TODO REMAKE TOP FRAME LAYOUT (MAKE IT PRETTIER)
@@ -121,7 +142,7 @@ frame_top.config(bg=background_color)
 
 # Define bottom frame (main grid)
 frame_bottom = tkinter.Frame(window)
-frame_bottom.pack(side=BOTTOM, fill=None, expand=1, pady=50)
+frame_bottom.pack(side=BOTTOM, fill=None, expand=1, pady=25)
 frame_bottom.config(bg=background_color)
 
 play_button_image = tkinter.PhotoImage(file="assets/baseline_play_circle_white_24dp.png")
@@ -135,6 +156,12 @@ start_button.config(bg="green", text="Set start",
                     set_start_button_click(self),
                     activebackground="green")
 start_button.bind('<Button-1>', set_start_button_click(start_button))
+finish_button = tkinter.Button(frame_top)
+finish_button.pack()
+finish_button.config(bg="red", text="Set Finish",
+                     activebackground="red",
+                     command=lambda self=finish_button:
+                     set_finish_button(self))
 
 # Draw the board (Including the row and column labels)
 for x in range(rows + 1):

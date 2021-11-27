@@ -41,23 +41,48 @@ window.geometry(default_geometry)
 
 
 def calc_path():
+    # TODO FINISH THIS
     global finish_x, finish_y, start_y, start_x, move_list
+    # Create seen matrix
+    seen = []
+    for row in range(rows + 1):
+        temp = []
+        for col in range(columns + 1):
+            temp.append(False)
+        seen.append(temp)
+    # Check each cell
     move_list = []
     move_list.append((finish_x, finish_y, 0))
+    seen[finish_x][finish_y] = True
     for move in move_list:
-        check_adjacent_cells(move)
+        check_adjacent_cells(move, seen)
 
 
-def check_adjacent_cells(move):
+def check_adjacent_cells(move, seen):
     current_x = move[0]
     current_y = move[1]
     counter = move[2]
     global move_list
     # Check up
     if current_x - 1 >= 0:
-        if not matrix_list[current_x - 1][current_y]:
-            #do sth
-
+        if not matrix_list[current_x - 1][current_y] and not seen[current_x - 1][current_y]:
+            move_list.append((current_x - 1, current_y, counter + 1))
+            seen[current_x - 1][current_y] = True
+    # Check down
+    if current_x + 1 < len(matrix_list):
+        if not matrix_list[current_x - 1][current_y] and not seen[current_x + 1][current_y]:
+            move_list.append((current_x + 1, current_y, counter + 1))
+            seen[current_x + 1][current_y] = True
+    # Check left
+    if current_y - 1 >= 0:
+        if not matrix_list[current_x][current_y - 1] and not seen[current_x][current_y - 1]:
+            move_list.append((current_x, current_y - 1, counter + 1))
+            seen[current_x][current_y - 1] = True
+    # Check right
+    if current_y + 1 < len(matrix_list[current_x]):
+        if not matrix_list[current_x][current_y + 1] and not seen[current_x][current_y - 1]:
+            move_list.append((current_x, current_y + 1, counter + 1))
+            seen[current_x][current_y + 1] = True
 
 
 def move_window(event):
@@ -179,7 +204,7 @@ frame_bottom.config(bg=background_color)
 play_button_image = tkinter.PhotoImage(file="assets/baseline_play_circle_white_24dp.png")
 play_button = tkinter.Button(frame_top, image=play_button_image, bg=background_color, highlightthickness=0, bd=0,
                              activebackground=background_color,
-                             command=lambda : calc_path()).pack()
+                             command=lambda: calc_path()).pack()
 
 start_button = tkinter.Button(frame_top)
 start_button.pack()

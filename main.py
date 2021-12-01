@@ -24,12 +24,13 @@ is_set_start_button_pressed = False
 is_set_finish_button_pressed = False
 default_geometry = '900x1000'
 
-# Define colors used
+# Define colours used
 title_bar_color = "#121212"
 background_color = "#1a1a1a"
 blue_color = "#2962ff"
 button_color = "#242424"
 button_clicked_color = "#303030"
+path_colour = "#db44fc"
 
 # Init window
 window = tkinter.Tk()
@@ -41,8 +42,9 @@ window.geometry(default_geometry)
 
 
 def calc_path():
-    # TODO FINISH THIS
     global finish_x, finish_y, start_y, start_x, move_list
+    if finish_x is None or finish_y is None or start_x is None or start_y is None:
+        return
     # Create seen matrix
     seen = []
     for row in range(rows + 1):
@@ -50,15 +52,47 @@ def calc_path():
         for col in range(columns + 1):
             temp.append(False)
         seen.append(temp)
-    # Check each cell
-    move_list = []
-    move_list.append((finish_x, finish_y, 0))
+    # move_list holds all cells and their distance from finish
+    move_list = [(finish_x, finish_y, 0)]
     seen[finish_x][finish_y] = True
+    # Check each cell and append a distance from finish
     for move in move_list:
-        check_adjacent_cells(move, seen)
+        check_distance_for_adjacent_cells(move, seen)
+    # Based on all moves get shortest path
+    result = []
+    map_shortest_path((start_x, start_y), move_list, result)
+    # colour the path
+    for coordinates in result:
+        button_to_colour = buttons_grid[coordinates[0]][coordinates[1]]
+        button_to_colour.config(bg=path_colour)
 
 
-def check_adjacent_cells(move, seen):
+def map_shortest_path(current, moves, result):
+    global finish_x, finish_y
+    current_x = current[0]
+    current_y = current[1]
+    # if current is finish end algorithm
+    if current_x == finish_x and current_y == finish_y:
+        return
+    # find surrounding cells with the smallest distance from finish
+    smallest = None
+    for cell in moves:
+        # check                          up                                                 down                                          left                                                          right
+        if (cell[0] == current_x - 1 and cell[1] == current_y) or (cell[0] == current_x + 1 and cell[1] == current_y) or (cell[0] == current_x and cell[1] == current_y - 1) or (cell[0] == current_x and cell[1] == current_y + 1):
+            if smallest is None:
+                smallest = (cell[0], cell[1], cell[2])
+            elif smallest[2] < cell[2]:
+                smallest = (cell[0], cell[1], cell[2])
+    if smallest is None:
+        print("No path found")
+        return
+    else:
+        print("Move to x -> {0}, y -> {1}".format(smallest[0], smallest[1]))
+        result.append(smallest)
+        map_shortest_path(smallest, moves, result)
+
+
+def check_distance_for_adjacent_cells(move, seen):
     current_x = move[0]
     current_y = move[1]
     counter = move[2]

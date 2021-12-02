@@ -47,9 +47,9 @@ def calc_path():
         return
     # Create seen matrix
     seen = []
-    for row in range(rows + 1):
+    for row in range(rows):
         temp = []
-        for col in range(columns + 1):
+        for col in range(columns):
             temp.append(False)
         seen.append(temp)
     # move_list holds all cells and their distance from finish
@@ -77,11 +77,13 @@ def map_shortest_path(current, moves, result):
     # find surrounding cells with the smallest distance from finish
     smallest = None
     for cell in moves:
-        # check                          up                                                 down                                          left                                                          right
-        if (cell[0] == current_x - 1 and cell[1] == current_y) or (cell[0] == current_x + 1 and cell[1] == current_y) or (cell[0] == current_x and cell[1] == current_y - 1) or (cell[0] == current_x and cell[1] == current_y + 1):
+        if (cell[0] == current_x - 1 and cell[1] == current_y) or (
+                cell[0] == current_x + 1 and cell[1] == current_y) or (
+                cell[0] == current_x and cell[1] == current_y - 1) or (
+                cell[0] == current_x and cell[1] == current_y + 1):
             if smallest is None:
                 smallest = (cell[0], cell[1], cell[2])
-            elif smallest[2] < cell[2]:
+            elif smallest[2] > cell[2]:
                 smallest = (cell[0], cell[1], cell[2])
     if smallest is None:
         print("No path found")
@@ -96,25 +98,25 @@ def check_distance_for_adjacent_cells(move, seen):
     current_x = move[0]
     current_y = move[1]
     counter = move[2]
-    global move_list
+    global move_list, state_matrix
     # Check up
     if current_x - 1 >= 0:
-        if not matrix_list[current_x - 1][current_y] and not seen[current_x - 1][current_y]:
+        if not state_matrix[current_x - 1][current_y] and not seen[current_x - 1][current_y]:
             move_list.append((current_x - 1, current_y, counter + 1))
             seen[current_x - 1][current_y] = True
     # Check down
-    if current_x + 1 < len(matrix_list):
-        if not matrix_list[current_x - 1][current_y] and not seen[current_x + 1][current_y]:
+    if current_x + 1 < len(state_matrix):
+        if not state_matrix[current_x + 1][current_y] and not seen[current_x + 1][current_y]:
             move_list.append((current_x + 1, current_y, counter + 1))
             seen[current_x + 1][current_y] = True
     # Check left
     if current_y - 1 >= 0:
-        if not matrix_list[current_x][current_y - 1] and not seen[current_x][current_y - 1]:
+        if not state_matrix[current_x][current_y - 1] and not seen[current_x][current_y - 1]:
             move_list.append((current_x, current_y - 1, counter + 1))
             seen[current_x][current_y - 1] = True
     # Check right
-    if current_y + 1 < len(matrix_list[current_x]):
-        if not matrix_list[current_x][current_y + 1] and not seen[current_x][current_y - 1]:
+    if current_y + 1 < len(state_matrix[current_x]):
+        if not state_matrix[current_x][current_y + 1] and not seen[current_x][current_y + 1]:
             move_list.append((current_x, current_y + 1, counter + 1))
             seen[current_x][current_y + 1] = True
 

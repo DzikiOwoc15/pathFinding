@@ -2,6 +2,7 @@ import time
 import tkinter
 from tkinter import RIGHT, X, TOP, BOTTOM, LEFT, RAISED, SUNKEN
 import pyautogui
+from PIL import Image, ImageTk
 
 # Basic variables
 
@@ -45,6 +46,13 @@ def calc_path():
     global finish_x, finish_y, start_y, start_x, move_list
     if finish_x is None or finish_y is None or start_x is None or start_y is None:
         return
+
+    # Delete previous path
+    for button_row in buttons_grid:
+        for btn in button_row:
+            if btn.cget('bg') == path_colour:
+                btn.config(background=button_color)
+
     # Create seen matrix
     seen = []
     for row in range(rows):
@@ -52,15 +60,24 @@ def calc_path():
         for col in range(columns):
             temp.append(False)
         seen.append(temp)
+
     # move_list holds all cells and their distance from finish
     move_list = [(finish_x, finish_y, 0)]
     seen[finish_x][finish_y] = True
+
     # Check each cell and append a distance from finish
     for move in move_list:
         check_distance_for_adjacent_cells(move, seen)
+
     # Based on all moves get shortest path
     result = []
     map_shortest_path((start_x, start_y), move_list, result)
+    # Delete last coordinates, so that the finish is not coloured
+    if len(result) != 0:
+        result.pop()
+
+    # change label
+    path_length_label_text_change(len(result))
     # colour the path
     for coordinates in result:
         button_to_colour = buttons_grid[coordinates[0]][coordinates[1]]
@@ -194,6 +211,7 @@ def matrix_button_click(x_axis, y_axis):
             old_start_button.config(background=button_color)
         start_x = x_axis - 1
         start_y = y_axis - 1
+        coordinates_label_text_change(start_label, start_x, start_y)
         current_button.config(background="green")
     elif is_set_finish_button_pressed:
         # Unclick previous finish button
@@ -202,7 +220,22 @@ def matrix_button_click(x_axis, y_axis):
             old_finish_button.config(background=button_color)
         finish_x = x_axis - 1
         finish_y = y_axis - 1
+        coordinates_label_text_change(finish_label, finish_x, finish_y)
         current_button.config(background="red")
+
+
+def coordinates_label_text_change(btn, x_to_set, y_to_set):
+    string = "X: {0}, Y: {1}".format(x_to_set + 1, y_to_set + 1)
+    btn.config(text=string)
+
+
+def path_length_label_text_change(distance):
+    string = ""
+    if distance == 0:
+        string = "No path found"
+    else:
+        string = "Shortest distance: {0}".format(distance)
+    path_len.config(text=string)
 
 
 # initialize items on a title bar
@@ -227,32 +260,63 @@ title_label.bind('<B1-Motion>', move_window)
 logo_label.bind('<B1-Motion>', move_window)
 
 # TODO REMAKE TOP FRAME LAYOUT (MAKE IT PRETTIER)
+# Define main frame
+main_frame = tkinter.Frame(window)
+main_frame.pack()
+main_frame.config(bg=background_color)
 # Define top frame (play button etc)
-frame_top = tkinter.Frame(window)
-frame_top.pack(side=TOP, pady=25)
+frame_top = tkinter.Frame(main_frame)
+frame_top.pack(side=TOP, fill=X, pady=25)
 frame_top.config(bg=background_color)
 
 # Define bottom frame (main grid)
-frame_bottom = tkinter.Frame(window)
+frame_bottom = tkinter.Frame(main_frame)
 frame_bottom.pack(side=BOTTOM, fill=None, expand=1, pady=25)
 frame_bottom.config(bg=background_color)
 
+# test_button = tkinter.PhotoImage(Image.open('assets/SETStartButton.png').resize(25, 50))
+# test_btn = tkinter.Button(frame_top, image=test_button, bg=background_color).pack()
 play_button_image = tkinter.PhotoImage(file="assets/baseline_play_circle_white_24dp.png")
 play_button = tkinter.Button(frame_top, image=play_button_image, bg=background_color, highlightthickness=0, bd=0,
                              activebackground=background_color,
                              command=lambda: calc_path()).pack()
 
-start_button = tkinter.Button(frame_top)
-start_button.pack()
+# A frame for a length of the path
+path_len_frame = tkinter.Frame(frame_top)
+path_len_frame.config(bg=background_color)
+path_len_frame.pack(side=RIGHT)
+
+path_len = tkinter.Label(path_len_frame)
+path_len.config(bg=background_color, fg=path_colour)
+path_len.pack()
+
+# A frame for start and finish button
+button_frame = tkinter.Frame(frame_top)
+button_frame.config(bg=background_color)
+button_frame.pack(side=LEFT, padx=25)
+# Set padding for rows and columns
+button_frame.rowconfigure(0, minsize=50)
+button_frame.columnconfigure(1, minsize=120)
+
+start_label = tkinter.Label(button_frame)
+start_label.config(bg=background_color, fg="green")
+start_label.grid(row=0, column=1)
+finish_label = tkinter.Label(button_frame)
+finish_label.config(bg=background_color, fg="red")
+finish_label.grid(row=1, column=1)
+
+start_button = tkinter.Button(button_frame)
+start_button.grid(row=0, column=0)
 # start_button.bind('<Button-1>', set_start_button_click(start_button))
-finish_button = tkinter.Button(frame_top)
-finish_button.pack()
+finish_button = tkinter.Button(button_frame)
+finish_button.grid(row=1, column=0)
 
 finish_button.config(bg="red", text="Set Finish",
                      activebackground="red",
                      command=lambda self=finish_button, button_to_unclick=start_button:
                      set_finish_button_click(self, start_button))
 start_button.config(bg="green", text="Set start",
+                    width=8,
                     command=lambda self=start_button, button_to_unclick=finish_button:
                     set_start_button_click(self, button_to_unclick),
                     activebackground="green")

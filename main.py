@@ -24,6 +24,11 @@ is_window_maximized = False
 is_set_start_button_pressed = False
 is_set_finish_button_pressed = False
 default_geometry = '900x1000'
+font = 'Consolas'
+
+# start and finish button size
+start_and_finish_width = 125
+start_and_finish_height = 35
 
 # Define colours used
 title_bar_color = "#121212"
@@ -167,14 +172,20 @@ def set_start_button_click(self, button_to_unclick):
     global is_set_start_button_pressed, is_set_finish_button_pressed
     if is_set_start_button_pressed:
         is_set_start_button_pressed = False
-        self.config(relief=RAISED)
+        img = ImageTk.PhotoImage(
+            Image.open('assets/start_button.png').resize((start_and_finish_width, start_and_finish_height)))
+        self.photo = img
+        self.config(relief=RAISED, image=img)
     else:
         # Unclick the finish button
         is_set_finish_button_pressed = False
         button_to_unclick.config(relief=RAISED)
         # Click the start button
         is_set_start_button_pressed = True
-        self.config(relief=SUNKEN)
+        img = ImageTk.PhotoImage(
+            Image.open('assets/start_button_pressed.png').resize((start_and_finish_width, start_and_finish_height)))
+        self.photo = img
+        self.config(relief=SUNKEN, image=img)
 
 
 def set_finish_button_click(self, button_to_unclick):
@@ -238,6 +249,13 @@ def path_length_label_text_change(distance):
     path_len.config(text=string)
 
 
+def set_pixel_image(self, image):
+    img = Image.open(image)
+    resized_image = img.resize((125, 35))
+    photoImg = ImageTk.PhotoImage(resized_image)
+    self.config(image=photoImg)
+
+
 # initialize items on a title bar
 title_bar = tkinter.Frame(window, bg=title_bar_color, relief="raised")
 close_button = tkinter.Button(title_bar, text="X", command=window.destroy, bg=title_bar_color, fg="white",
@@ -274,9 +292,8 @@ frame_bottom = tkinter.Frame(main_frame)
 frame_bottom.pack(side=BOTTOM, fill=None, expand=1, pady=25)
 frame_bottom.config(bg=background_color)
 
-# test_button = tkinter.PhotoImage(Image.open('assets/SETStartButton.png').resize(25, 50))
-# test_btn = tkinter.Button(frame_top, image=test_button, bg=background_color).pack()
-play_button_image = tkinter.PhotoImage(file="assets/baseline_play_circle_white_24dp.png")
+play_button_image = ImageTk.PhotoImage(
+    Image.open('assets/play_button.png').resize((45, 45)))
 play_button = tkinter.Button(frame_top, image=play_button_image, bg=background_color, highlightthickness=0, bd=0,
                              activebackground=background_color,
                              command=lambda: calc_path()).pack()
@@ -287,7 +304,7 @@ path_len_frame.config(bg=background_color)
 path_len_frame.pack(side=RIGHT)
 
 path_len = tkinter.Label(path_len_frame)
-path_len.config(bg=background_color, fg=path_colour)
+path_len.config(bg=background_color, fg=path_colour, font=(font, 12))
 path_len.pack()
 
 # A frame for start and finish button
@@ -298,28 +315,29 @@ button_frame.pack(side=LEFT, padx=25)
 button_frame.rowconfigure(0, minsize=50)
 button_frame.columnconfigure(1, minsize=120)
 
+# Labels that display coordinates of the start and the finish
 start_label = tkinter.Label(button_frame)
-start_label.config(bg=background_color, fg="green")
+start_label.config(bg=background_color, fg="green", font=(font, 9))
 start_label.grid(row=0, column=1)
 finish_label = tkinter.Label(button_frame)
 finish_label.config(bg=background_color, fg="red")
 finish_label.grid(row=1, column=1)
 
-start_button = tkinter.Button(button_frame)
+photoImg = ImageTk.PhotoImage(
+    Image.open('assets/start_button.png').resize((start_and_finish_width, start_and_finish_height)))
+start_button = tkinter.Button(button_frame, image=photoImg, activebackground=background_color, bg=background_color,
+                              borderwidth=0)
 start_button.grid(row=0, column=0)
-# start_button.bind('<Button-1>', set_start_button_click(start_button))
 finish_button = tkinter.Button(button_frame)
 finish_button.grid(row=1, column=0)
+
+start_button.config(command=lambda self=start_button, button_to_unclick=finish_button:
+set_start_button_click(self, button_to_unclick))
 
 finish_button.config(bg="red", text="Set Finish",
                      activebackground="red",
                      command=lambda self=finish_button, button_to_unclick=start_button:
-                     set_finish_button_click(self, start_button))
-start_button.config(bg="green", text="Set start",
-                    width=8,
-                    command=lambda self=start_button, button_to_unclick=finish_button:
-                    set_start_button_click(self, button_to_unclick),
-                    activebackground="green")
+                     set_finish_button_click(self, button_to_unclick))
 
 # Draw the board (Including the row and column labels)
 for x in range(rows + 1):

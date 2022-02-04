@@ -7,3 +7,11 @@ Python project with GUI that finds the shortest path to the specified destinatio
 3. Set walls by simply clicking on the grid
 4. Press `play`
 
+### start
+![start](readme_imgs/green.png)
+
+### wall
+![wall](readme_imgs/blue.png)
+
+### finish
+![finish](readme_imgs/red.png)

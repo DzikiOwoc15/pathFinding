@@ -179,7 +179,11 @@ def set_start_button_click(self, button_to_unclick):
     else:
         # Unclick the finish button
         is_set_finish_button_pressed = False
-        button_to_unclick.config(relief=RAISED)
+        img = ImageTk.PhotoImage(
+            Image.open('assets/finish_button (2).png').resize((start_and_finish_width, start_and_finish_height))
+        )
+        button_to_unclick.photo = img
+        button_to_unclick.config(relief=RAISED, image=img)
         # Click the start button
         is_set_start_button_pressed = True
         img = ImageTk.PhotoImage(
@@ -192,14 +196,25 @@ def set_finish_button_click(self, button_to_unclick):
     global is_set_finish_button_pressed, is_set_start_button_pressed
     if is_set_finish_button_pressed:
         is_set_finish_button_pressed = False
-        self.config(relief=RAISED)
+        img = ImageTk.PhotoImage(
+            Image.open('assets/finish_button (2).png').resize((start_and_finish_width, start_and_finish_height))
+        )
+        self.photo = img
+        self.config(relief=RAISED, image=img)
     else:
         # Unclick the start button
-        button_to_unclick.config(relief=RAISED)
         is_set_start_button_pressed = False
+        img = ImageTk.PhotoImage(
+            Image.open('assets/start_button.png').resize((start_and_finish_width, start_and_finish_height)))
+        button_to_unclick.photo = img
+        button_to_unclick.config(relief=RAISED, image=img)
         # Click the finish button
         is_set_finish_button_pressed = True
-        self.config(relief=SUNKEN)
+        img = ImageTk.PhotoImage(
+            Image.open('assets/finish_button_pressed.png').resize((start_and_finish_width, start_and_finish_height))
+        )
+        self.photo = img
+        self.config(relief=SUNKEN, image=img)
 
 
 # Function to change color and state when button is clicked
@@ -277,7 +292,6 @@ title_bar.bind('<B1-Motion>', move_window)
 title_label.bind('<B1-Motion>', move_window)
 logo_label.bind('<B1-Motion>', move_window)
 
-# TODO REMAKE TOP FRAME LAYOUT (MAKE IT PRETTIER)
 # Define main frame
 main_frame = tkinter.Frame(window)
 main_frame.pack()
@@ -320,23 +334,29 @@ start_label = tkinter.Label(button_frame)
 start_label.config(bg=background_color, fg="green", font=(font, 9))
 start_label.grid(row=0, column=1)
 finish_label = tkinter.Label(button_frame)
-finish_label.config(bg=background_color, fg="red")
+finish_label.config(bg=background_color, fg="red", font=(font, 9))
 finish_label.grid(row=1, column=1)
 
-photoImg = ImageTk.PhotoImage(
+photo_img_start = ImageTk.PhotoImage(
     Image.open('assets/start_button.png').resize((start_and_finish_width, start_and_finish_height)))
-start_button = tkinter.Button(button_frame, image=photoImg, activebackground=background_color, bg=background_color,
+start_button = tkinter.Button(button_frame, image=photo_img_start,
+                              activebackground=background_color,
+                              bg=background_color,
                               borderwidth=0)
+photo_img_finish = ImageTk.PhotoImage(
+    Image.open('assets/finish_button (2).png').resize((start_and_finish_width, start_and_finish_height)))
+finish_button = tkinter.Button(button_frame, image=photo_img_finish,
+                               activebackground=background_color,
+                               bg=background_color,
+                               borderwidth=0)
+
 start_button.grid(row=0, column=0)
-finish_button = tkinter.Button(button_frame)
 finish_button.grid(row=1, column=0)
 
 start_button.config(command=lambda self=start_button, button_to_unclick=finish_button:
-set_start_button_click(self, button_to_unclick))
+                     set_start_button_click(self, button_to_unclick))
 
-finish_button.config(bg="red", text="Set Finish",
-                     activebackground="red",
-                     command=lambda self=finish_button, button_to_unclick=start_button:
+finish_button.config(command=lambda self=finish_button, button_to_unclick=start_button:
                      set_finish_button_click(self, button_to_unclick))
 
 # Draw the board (Including the row and column labels)
@@ -352,7 +372,12 @@ for x in range(rows + 1):
                 label_text = label_template.format(y)
             elif y == 0 and x != 0:
                 label_text = label_template.format(x)
-            tkinter.Label(frame_bottom, text=label_text, bg=background_color, fg="white").grid(row=x, column=y)
+            tkinter.Label(frame_bottom,
+                          text=label_text,
+                          bg=background_color,
+                          fg="white",
+                          font=(font, 12)
+                          ).grid(row=x, column=y)
         # Draw buttons
         else:
             matrix_list.append(False)

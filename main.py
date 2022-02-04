@@ -180,7 +180,7 @@ def set_start_button_click(self, button_to_unclick):
         # Unclick the finish button
         is_set_finish_button_pressed = False
         img = ImageTk.PhotoImage(
-            Image.open('assets/finish_button (2).png').resize((start_and_finish_width, start_and_finish_height))
+            Image.open('assets/finish_button.png').resize((start_and_finish_width, start_and_finish_height))
         )
         button_to_unclick.photo = img
         button_to_unclick.config(relief=RAISED, image=img)
@@ -197,7 +197,7 @@ def set_finish_button_click(self, button_to_unclick):
     if is_set_finish_button_pressed:
         is_set_finish_button_pressed = False
         img = ImageTk.PhotoImage(
-            Image.open('assets/finish_button (2).png').resize((start_and_finish_width, start_and_finish_height))
+            Image.open('assets/finish_button.png').resize((start_and_finish_width, start_and_finish_height))
         )
         self.photo = img
         self.config(relief=RAISED, image=img)
@@ -344,7 +344,7 @@ start_button = tkinter.Button(button_frame, image=photo_img_start,
                               bg=background_color,
                               borderwidth=0)
 photo_img_finish = ImageTk.PhotoImage(
-    Image.open('assets/finish_button (2).png').resize((start_and_finish_width, start_and_finish_height)))
+    Image.open('assets/finish_button.png').resize((start_and_finish_width, start_and_finish_height)))
 finish_button = tkinter.Button(button_frame, image=photo_img_finish,
                                activebackground=background_color,
                                bg=background_color,
